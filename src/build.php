@@ -4,9 +4,16 @@ $src = __DIR__;
 
 //------------------------------------------------------------//
 // dist 초기화
-deleteDirectory($dist);
-mkdir($dist, 0777, true);
 
+deleteDirectory($dist.'/resource');
+unlink($dist.'/index.html');
+unlink($dist.'/favicon.ico');
+unlink($dist.'/feature.png');
+unlink($dist.'/robots.txt');
+unlink($dist.'/sitemap.xml');
+// deleteDirectory($dist); // root폴더가 src 상위로 삭제하면 안됨.
+// mkdir($dist, 0777, true);
+// exit;
 
 //------------------------------------------------------------//
 // index.html 생성
