@@ -368,7 +368,8 @@
             break;
             default :
                 emptyMovieList();
-                document.title=(document.title.replace(/\#.*/,''))+'#'+hash;
+                // document.title=(document.title.replace(/\#.*/,''))+'#'+hash;
+                document.title='BAROBA - '+hash; // 제목테그 단순화
                 $('#searching').removeClass('d-none'); // 검색중입니다. 종료./
                 $('[name=main]').removeClass('d-none');
                 $('#btn-more').addClass('d-none');
@@ -677,7 +678,7 @@
         search(s, t);
     });
     $('form[name=search]').on('submit', function() {
-		let type = $('input[name="search-type"]').val();
+		let type = $('select[name="search-type"]').val();
 		let keyword = $('input[name=search]').val();
         if(type=='category'){window.location.href='#'+keyword;}
         if(type=='date'){window.location.href= setURLParameter('date',keyword)+window.location.hash;}
@@ -695,7 +696,7 @@
 
     // new list
     $('.autocomplete').on('click', 'li', function() {
-        let type = $('input[name="search-type"]').val();
+        let type = $('select[name="search-type"]').val();
         let c = $(this).text();
         if(type=='category') {
             if(c==get_hash()) {return false;}
