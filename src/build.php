@@ -18,7 +18,7 @@ unlink($dist.'/sitemap.xml');
 //------------------------------------------------------------//
 // index.html 생성
 
-$html = file_get_contents($src.'/index.origin.html');
+$html = file_get_contents($src.'/index.html');
 //버전 관리 파일 찾기
 preg_match_all("/'(.[^']*\?t={version})'/", $html, $files1);
 preg_match_all('/"(.[^"]*\?t={version})"/', $html, $files2);
