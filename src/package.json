@@ -1,0 +1,42 @@
+{
+  "name": "baroba",
+  "version": "1.1.0",
+  "description": "Video collection program",
+  "main": "main.js",
+  "dependencies": {
+    "jquery": "^3.3.1"
+  },
+  "devDependencies": {
+    "asar": "^1.0.0",
+    "electron": "^4.1.0",
+    "electron-packager": "^13.1.1",
+    "electron-reloader": "^0.2.0"
+  },
+  "scripts": {
+    "test": "test",
+    "start": "electron .",
+    "package-mac": "asar pack dist/Baroba-darwin-x64/resources/app dist/Baroba-darwin-x64/resources/app.asar",
+    "package-linux": "asar pack dist/Baroba-linux-x64/resources/app dist/Baroba-linux-x64/resources/app.asar",
+    "package-win64": "asar pack dist/Baroba-win32-x64/resources/app dist/Baroba-win32-x64/resources/app.asar ; rm -rf dist/Baroba-win32-x64/resources/app",
+    "package-win32": "asar pack dist/Baroba-win32-ia32/resources/app dist/Baroba-win32-ia32/resources/app.asar ; rm -rf dist/Baroba-win32-ia32/resources/app",
+    "package-win": "asar pack dist/Baroba-win32-x64/resources/app dist/Baroba-win32-x64/resources/app.asar ; rm -rf dist/Baroba-win32-x64/resources/app; asar pack dist/Baroba-win32-ia32/resources/app dist/Baroba-win32-ia32/resources/app.asar ; rm -rf dist/Baroba-win32-ia32/resources/app",
+    "build": "rm -rf dist ; electron-packager . Baroba --all --prune --out dist --overwrite ",
+    "build-mac": "rm -rf dist/Baroba-darwin-x64 dist/Baroba-mas-x64 ; electron-packager . Baroba --platform=darwin,mas --arch x64 --prune --out dist --icon icon.icns --overwrite ",
+    "build-linux": "rm -rf dist/Baroba-linux-* ; electron-packager . Baroba --platform=linux --arch x64,arm64,armv7l,ia32  --out dist --icon favicon.ico --overwrite ",
+    "build-win": "electron-packager . Baroba --platform=win32 --arch x64,ia32 --prune --out dist --icon favicon.ico --overwrite "
+  },
+  "build": {
+    "appId": "com.benant.baroba.desktop2",
+    "productName": "Baroba"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://bitbucket.org/benant/baroba.git"
+  },
+  "keywords": [
+    "baroba"
+  ],
+  "author": "Kenny Han",
+  "license": "UNLICENSED",
+  "private": true
+}
