@@ -1,8 +1,8 @@
 (function($) {
     var items = [], movies = {}, islogin = false,
         runmode = window.location.host ? 'web' : process.versions['electron'] ? 'pc' : 'mobile',
-        host = window.location.host ? '//'+window.location.host : 'https://baroba.kr',
-        api_url = '//api.'+window.location.host,
+        host = window.location.host ? '//'+window.location.host : 'www.baroba.kr',
+        api_url = '//api.'+(host.replace('www','')),
         key_request_api = '',
         request_api = function() {
             key_request_api = setTimeout(request_api, 300);
