@@ -369,7 +369,11 @@
             default :
                 emptyMovieList();
                 // document.title=(document.title.replace(/\#.*/,''))+'#'+hash;
-                document.title='BAROBA - '+hash; // 제목테그 단순화
+                if(hash) { 
+                    let t = document.title + '';
+                    t = t.indexOf(' - ')>-1 ? t.substring(0, t.indexOf(' - ')) : t;
+                    document.title = t + ' - '+hash; // 제목테그 단순화
+                }
                 $('#searching').removeClass('d-none'); // 검색중입니다. 종료./
                 $('[name=main]').removeClass('d-none');
                 $('#btn-more').addClass('d-none');
