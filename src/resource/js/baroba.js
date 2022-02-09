@@ -380,15 +380,17 @@
                 lastMovieTime = localStorage[hash];
                 // lastMovieTime = localStorage.getItem('lastMovieTime');
                 // lastMovieTime = lastMovieTime ? JSON.parse(lastMovieTime) : {};
-                if(lastMovieTime) { // 해시값에 마지막동영상시간이 있을때
-                    if(!reset_hashes[hash]) {
-                        reset_hashes[hash] = true; // 
-                        // 3일 지난 시간은 지워서 초기화합니다.
-                        if(lastMovieTime < Math.floor(new Date().getTime()/1000) + 60*60*24*1 ) {
-                            lastMovieTime = false;
-                        }
-                    }
-                }
+                // -- 날짜 이동기능 넣어서 제거함
+                // if(lastMovieTime) { // 해시값에 마지막동영상시간이 있을때
+                //     if(!reset_hashes[hash]) {
+                //         reset_hashes[hash] = true; // 
+                //         // 3일 지난 시간은 지워서 초기화합니다.
+                //         if(lastMovieTime < Math.floor(new Date().getTime()/1000) + 60*60*24*1 ) {
+                //             lastMovieTime = false;
+                //         }
+                //     }
+                // }
+                // -- 날짜 이동기능 넣어서 제거함
                 if(!lastMovieTime) {  // 해시값에 마지막동영상시간이 없으면 6시 이전에는 어제0시를 6시 이후에는 오늘 0시를 시작시간으로 사용합니다.
                     let t = new Date(),
                         d = t.getHours()<6 ? new Date(t.getFullYear(), t.getMonth(), t.getDate()-1, 12,0,0,0) : new Date(t.getFullYear(), t.getMonth(), t.getDate(), 0,0,0,0);
