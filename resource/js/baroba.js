@@ -391,7 +391,7 @@
                 }
                 if(!lastMovieTime) {  // 해시값에 마지막동영상시간이 없으면 6시 이전에는 어제0시를 6시 이후에는 오늘 0시를 시작시간으로 사용합니다.
                     let t = new Date(),
-                        d = t.getHours()<6 ? new Date(t.getFullYear(), t.getMonth(), t.getDate()-1, 0,0,0,0) : new Date(t.getFullYear(), t.getMonth(), t.getDate(), 0,0,0,0);
+                        d = t.getHours()<6 ? new Date(t.getFullYear(), t.getMonth(), t.getDate()-1, 12,0,0,0) : new Date(t.getFullYear(), t.getMonth(), t.getDate(), 0,0,0,0);
                     lastMovieTime = Math.floor(d.getTime()/1000);
                     localStorage.setItem(hash, lastMovieTime);
                 } else {
