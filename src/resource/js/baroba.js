@@ -377,28 +377,29 @@
                 $('#searching').removeClass('d-none'); // 검색중입니다. 종료./
                 $('[name=main]').removeClass('d-none');
                 $('#btn-more').addClass('d-none');
-                lastMovieTime = localStorage.getItem('lastMovieTime');
-                lastMovieTime = lastMovieTime ? JSON.parse(lastMovieTime) : {};
-                if(lastMovieTime[hash]) { // 해시값에 마지막동영상시간이 있을때
+                lastMovieTime = localStorage[hash];
+                // lastMovieTime = localStorage.getItem('lastMovieTime');
+                // lastMovieTime = lastMovieTime ? JSON.parse(lastMovieTime) : {};
+                if(lastMovieTime) { // 해시값에 마지막동영상시간이 있을때
                     if(!reset_hashes[hash]) {
                         reset_hashes[hash] = true; // 
                         // 3일 지난 시간은 지워서 초기화합니다.
-                        if(lastMovieTime[hash] < Math.floor(new Date().getTime()/1000) + 60*60*24*1 ) {
-                            lastMovieTime[hash] = false;
+                        if(lastMovieTime < Math.floor(new Date().getTime()/1000) + 60*60*24*1 ) {
+                            lastMovieTime = false;
                         }
                     }
                 }
-                if(!lastMovieTime[hash]) {  // 해시값에 마지막동영상시간이 없으면 6시 이전에는 어제0시를 6시 이후에는 오늘 0시를 시작시간으로 사용합니다.
+                if(!lastMovieTime) {  // 해시값에 마지막동영상시간이 없으면 6시 이전에는 어제0시를 6시 이후에는 오늘 0시를 시작시간으로 사용합니다.
                     let t = new Date(),
                         d = t.getHours()<6 ? new Date(t.getFullYear(), t.getMonth(), t.getDate()-1, 0,0,0,0) : new Date(t.getFullYear(), t.getMonth(), t.getDate(), 0,0,0,0);
-                    lastMovieTime[hash] = Math.floor(d.getTime()/1000);
-                    localStorage.setItem('lastMovieTime', JSON.stringify(lastMovieTime));
+                    lastMovieTime = Math.floor(d.getTime()/1000);
+                    localStorage.setItem(hash, lastMovieTime);
                 } else {
                 }
                 search_date = getURLParameter('date');
                 console.log('search_date:', search_date);
                 // return;
-				add_request_item('getMovieList', { 'c': hash, 'cnt': cnt_request_movie, 'time':lastMovieTime[hash], 'date':search_date }, callbackMovieList);
+				add_request_item('getMovieList', { 'c': hash, 'cnt': cnt_request_movie, 'time':lastMovieTime, 'date':search_date }, callbackMovieList);
 				add_tab(hash, true);
             break;
         }
@@ -440,13 +441,14 @@
                 $item = $('[name=item]'),
                 cnt = Math.floor($window.width()/$item.width()), cnt = cnt > 5 ? 5 : cnt, no = Math.floor($window.scrollTop() / ($item.height()+20)) * cnt, 
                 last_movie_time = $item.eq(no).attr('data-time'),
-                lastMovieTime = localStorage.getItem('lastMovieTime'), lastMovieTime = lastMovieTime ? JSON.parse(lastMovieTime) : {},
+                // lastMovieTime = localStorage.getItem('lastMovieTime'), lastMovieTime = lastMovieTime ? JSON.parse(lastMovieTime) : {},
                 // lastMovieTime = {},
                 hash = get_hash(), hash = hash ? hash : ''
             ;
             // console.log(cnt, $window.scrollTop(), $item.height(), no);
-            if(last_movie_time) {lastMovieTime[hash] = last_movie_time;}
-            localStorage.setItem('lastMovieTime', JSON.stringify(lastMovieTime));
+            // if(last_movie_time) {lastMovieTime[hash] = last_movie_time;}
+            // localStorage.setItem('lastMovieTime', JSON.stringify(lastMovieTime));
+            if(last_movie_time) {localStorage.setItem(hash, last_movie_time);}
         },
         get_more_movie = function() {
             getMore = false;
