@@ -20,6 +20,13 @@ main.wrap {padding: 0 0 15px;max-width: 1600px;margin: 0 auto 100px;}
 [name=poster_box] {overflow: hidden;background-image:url(resource/image/no-img.png);background-repeat: no-repeat;background-position: center;background-size: cover}
 [name=item] img {width: 100%;}
 [name=item] p {padding: 0 5px;margin: 0}
+
+/*.form-inline 검색영역 pc에서는 좌우로 정렬 모바일에서는 상하정렬 */
+[name=search] {flex-flow: row;} 
+@media(max-width:991px) {
+	[name=search] {flex-flow: column;}
+}
+/*.form-inline 검색영역 pc에서는 좌우로 정렬 모바일에서는 상하정렬 */
 [name=search] .input-group {width: 100%;}
 .autocomplete {position: absolute;background: #000;top: 100%;left: 0;right: 0;margin: 0;padding: 0}
 .autocomplete li {list-style: none;padding: 10px;cursor: pointer;border-bottom: 1px solid #d4d4d4;color: #FFF;}

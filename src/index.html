@@ -51,12 +51,13 @@
             </ul>
             <form name="search" class="form-inline my-2 my-lg-0">
                 <div class="input-group">
-                    <div class="input-group-prepend">
+                    <input type="hidden" name="search-type" value="category">
+                    <!-- <div class="input-group-prepend">
                         <select name="search-type" >
                             <option value="category">카테고리</option>
                             <option value="date">날짜</option>
                         </select>
-                    </div>
+                    </div> -->
                     <ul class="autocomplete">
                         <!-- <li>드라마</li><li>예능/오락</li><li>시사/교양</li> -->
                     </ul>
@@ -65,12 +66,17 @@
                         <button name="button-search" class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
+                <div class="input-group">
+                    <a href="#" class="btn btn-gray" name="btn-today">오늘</a>
+                    <a href="#" class="btn btn-gray" name="btn-yesterday">어제</a>
+                    <a href="#" class="btn btn-gray" name="btn-before-yesterday">그제</a>
+                </div>
             </form>
             <div>
                 <a href="#login" class="btn btn-gray" name="btn-login">로그인</a>
+                <a href="#addparser" class="btn btn-gray d-none" name="btn-addparser">채널등록</a>
                 <a href="#logout" class="btn btn-gray d-none" name="btn-logout">로그아웃</a>
-                <a href="#addparser" class="btn btn-gray d-none" name="btn-addparser">로그아웃</a>
-                <a href="#join" class="btn btn-gray" name="btn-join">회원가입</a>
+                <!-- <a href="#join" class="btn btn-gray" name="btn-join">회원가입</a> -->
             </div>
         </div>
     </nav>
@@ -197,6 +203,7 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+    <script src="resource/js/php.default.min.js?t={version}" async></script>
     <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
     <!-- <script async src="resource/js/jquery-3.3.1.min.js?t={version}"></script> -->
     <script src="resource/js/jquery-3.3.1.min.js?t={version}"></script>

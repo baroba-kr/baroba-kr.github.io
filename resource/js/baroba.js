@@ -680,13 +680,13 @@
         }, 'json');
     }
     $('input[name=search]').on('keyup', function() {
-        var t = $.trim($('select[name="search-type"]').val());
+        var t = $.trim($('[name="search-type"]').val());
         var s = $.trim($(this).val());
         if (s.length < 1) { return; }
         search(s, t);
     });
     $('form[name=search]').on('submit', function() {
-		let type = $('select[name="search-type"]').val();
+		let type = $('[name="search-type"]').val();
 		let keyword = $('input[name=search]').val();
         if(type=='category'){window.location.href='#'+keyword;}
         if(type=='date'){window.location.href= setURLParameter('date',keyword)+window.location.hash;}
@@ -704,7 +704,7 @@
 
     // new list
     $('.autocomplete').on('click', 'li', function() {
-        let type = $('select[name="search-type"]').val();
+        let type = $('[name="search-type"]').val();
         let c = $(this).text();
         if(type=='category') {
             if(c==get_hash()) {return false;}
@@ -758,5 +758,22 @@
     $('[name=btn-menu-toggler]').on('click', function(){
         setTimeout(function(){$('[name=search]').focus();}, 1000); // 음.. 뭔가 자연스럽지 않음. callback으로 처리가 필요해보임.
     })
+
+    // 오늘 날짜 검색
+    $('[name="btn-today"]').on('click', function(){
+        window.location.href='?date='+date('Y-m-d')+window.location.hash;
+        return false;
+    });
+    // 어제 날짜 검색
+    $('[name="btn-yesterday"]').on('click', function(){
+        window.location.href='?date='+date('Y-m-d', strtotime('-1 day'))+window.location.hash;
+        return false;
+    });
+    // 그제 날짜 검색
+    $('[name="btn-before-yesterday"]').on('click', function(){
+        window.location.href='?date='+date('Y-m-d', strtotime('-2 day'))+window.location.hash;
+        return false;
+    });
+
 
 })(jQuery);
