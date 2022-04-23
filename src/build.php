@@ -38,7 +38,7 @@ foreach($files as $file) {
 	$html = str_replace($file, str_replace('{version}',$t,$file_new), $html);
 }
 // {addtional_script}
-$html = str_replace('{addtional_script}', file_get_contents($src.'/addtional_script.tpl'), $html);
+$html = str_replace('<!--{addtional_script}-->', file_get_contents($src.'/addtional_script.tpl'), $html);
 // minify
 $html = preg_replace('/^\s+\/\/.*/m', '', $html);
 $html = preg_replace('/\/\*.*\*\//', '', $html);
