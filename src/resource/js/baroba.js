@@ -450,7 +450,8 @@
             // console.log(cnt, $window.scrollTop(), $item.height(), no);
             // if(last_movie_time) {lastMovieTime[hash] = last_movie_time;}
             // localStorage.setItem('lastMovieTime', JSON.stringify(lastMovieTime));
-            if(last_movie_time) {localStorage.setItem(hash, last_movie_time);}
+            const prev_last_movie_time = localStorage.getItem(hash);
+            if(last_movie_time && last_movie_time>prev_last_movie_time) {localStorage.setItem(hash, last_movie_time);}
         },
         get_more_movie = function() {
             getMore = false;
