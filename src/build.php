@@ -5,12 +5,12 @@ $src = __DIR__;
 //------------------------------------------------------------//
 // dist 초기화
 
-deleteDirectory($dist.'/resource');
-unlink($dist.'/index.html');
-unlink($dist.'/favicon.ico');
-unlink($dist.'/feature.png');
-unlink($dist.'/robots.txt');
-unlink($dist.'/sitemap.xml');
+if(file_exists($dist.'/resource')) deleteDirectory($dist.'/resource');
+if(file_exists($dist.'/index.html')) unlink($dist.'/index.html');
+if(file_exists($dist.'/favicon.ico')) unlink($dist.'/favicon.ico');
+if(file_exists($dist.'/favicon.png')) unlink($dist.'/feature.png');
+if(file_exists($dist.'/robots.txt')) unlink($dist.'/robots.txt');
+if(file_exists($dist.'/sitemap.xml')) unlink($dist.'/sitemap.xml');
 // deleteDirectory($dist); // root폴더가 src 상위로 삭제하면 안됨.
 // mkdir($dist, 0777, true);
 // exit;

@@ -775,6 +775,11 @@
         window.location.href='?date='+date('Y-m-d', strtotime('-2 day'))+window.location.hash;
         return false;
     });
+    // 전체 날짜 검색
+    $('[name="btn-before-total"]').on('click', function(){
+        window.location.href='?'+window.location.hash;
+        return false;
+    });
 
 
 })(jQuery);
