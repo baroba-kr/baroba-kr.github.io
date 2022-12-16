@@ -87,3 +87,4 @@ copy($src.'/favicon.ico', $dist.'/favicon.ico');
 copy($src.'/feature.png', $dist.'/feature.png');
 copy($src.'/robots.txt', $dist.'/robots.txt');
 copy($src.'/sitemap.xml', $dist.'/sitemap.xml');
+copy($src.'/manifest.json', $dist.'/manifest.json');
