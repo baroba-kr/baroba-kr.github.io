@@ -34,6 +34,12 @@
             const h = decodeURIComponent(window.location.hash)+'';
             return h ? h.substr(1) : '';
         },
+        goto = function(hash) {
+            window.location.href = '#'+hash;
+        },
+        replaceto = function(hash) {
+            window.location.replace('#'+hash);
+        },
         // getCookie = function (c_name) {
         //     var i,x,y,ARRcookies=document.cookie.split(";");
         //     for (i=0;i<ARRcookies.length;i++)
@@ -104,6 +110,114 @@
             });
             return false;
         },
+        addvideo = function(){
+            add_request_item('addMovie', { 'url': $('[name=movie_url]').val(), 'category': $('[name=categories]').val(), 'title': $('[name=title]').val(), 'regdate': $('[name=regdate]').val(), 'poster_url': $('[name=poster_url]').val(), 'free': $('[name=free]').val(), 'adult': $('[name=adult]').val()}, function(r){
+                if(r && r.success && r.payload) {
+                    alert('저장 완료');
+                    $('[name=form_save_movie]').reset();
+                    location.href = '#';
+                } else {
+                    var msg = r.error && r.error.message ? r.error.message : '로그인 정보가 올바른지 확인해주세요.';
+                    alert('저장 실패. '+msg);
+                }
+            });
+            return false;
+        },
+        // youtube 정보 조회 ------------------
+        get_youtube_id = function(url) {
+            let id = '';
+            if (url.indexOf("//youtu.be/") > -1) { // https://youtu.be/RGuMWr79G00
+                id = url.replace(/.*\/\/youtu.be\//, '').replace(/\&.*/, '');
+            } else if (url.indexOf("//youtube.com/watch?v=") > -1) { // https://youtube.com/watch?v=xpW7mWSa-1g&feature=youtu.be
+                id = url.replace(/.*\/\/youtube.com\/watch\?v=/, '').replace(/\&.*/, '');
+            } else if (url.indexOf("//m.youtube.com/watch?v=") > -1) { // https://m.youtube.com/watch?v=xpW7mWSa-1g&feature=youtu.be
+                id = url.replace(/.*\/\/m.youtube.com\/watch\?v=/, '').replace(/\&.*/, '');
+            } else if (url.indexOf("//www.youtube.com/watch?v=") > -1) { // https://www.youtube.com/watch?v=xpW7mWSa-1g&feature=youtu.be
+                id = url.replace(/.*\/\/www.youtube.com\/watch\?v=/, '').replace(/\&.*/, '');
+            } else if (url.indexOf("www.youtube.com/embed/") > -1) { // https://www.youtube.com/embed/xpW7mWSa-1g
+                id = videourl.replace('https://www.youtube.com/embed/', '');
+                if (id && id.indexOf('?') > -1) {
+                    id = id.substr(0, id.indexOf('?'));
+                }
+            }
+            return id;
+        },
+        //url 가져오기
+        get_video_url = function(html) {
+            html = $.trim(html);
+            let src = '',
+                res = ''; //https://www.youtube.com/watch?v=RGuMWr79G00
+            if (html.indexOf("//youtu.be/") > -1) { // https://youtu.be/RGuMWr79G00
+                src = "https://www.youtube.com/embed/" + (html.replace(/.*\/\/youtu.be\//, '').replace(/\&.*/, ''));
+            } else if (html.indexOf("//youtube.com/watch?v=") > -1) { // https://youtube.com/watch?v=xpW7mWSa-1g&feature=youtu.be
+                src = "https://www.youtube.com/embed/" + (html.replace(/.*\/\/youtube.com\/watch\?v=/, '').replace(/\&.*/, ''));
+            } else if (html.indexOf("//m.youtube.com/watch?v=") > -1) { // https://m.youtube.com/watch?v=xpW7mWSa-1g&feature=youtu.be
+                src = "https://www.youtube.com/embed/" + (html.replace(/.*\/\/m.youtube.com\/watch\?v=/, '').replace(/\&.*/, ''));
+            } else if (html.indexOf("//www.youtube.com/watch?v=") > -1) { // https://www.youtube.com/watch?v=xpW7mWSa-1g&feature=youtu.be
+                src = "https://www.youtube.com/embed/" + (html.replace(/.*\/\/www.youtube.com\/watch\?v=/, '').replace(/\&.*/, ''));
+                // } else if( html.indexOf("https://tv.naver.com/")>-1 ) { // https://tv.naver.com/v/15313024
+                // 	res = html.match(/(https?:\/\/)?tv\.naver\.com\/v\/(\w+)/);
+                // 	src ="https://tv.naver.com/embed/"+ res[2];
+                // } else if( html.indexOf("https://tv.kakao.com/channel/")>-1 ) { // https://tv.kakao.com/channel/2785655/cliplink/410787506
+                // 	res = html.match(/(https?:\/\/)?tv\.kakao\.com\/(\w+)\/(\w+)\/cliplink\/(\w+)/);
+                // 	src ="https://tv.kakao.com/embed/player/cliplink/"+ res[4];
+                // } else if( html.indexOf("https://www.dailymotion.com")>-1 ) { // https://www.dailymotion.com/video/x7vxo1m?playlist=x6hzyk
+                // 	res = html.match(/(https?:\/\/)?www\.dailymotion\.com\/video\/(\w+)\?/);
+                // 	src ="https://www.dailymotion.com/embed/video/"+ res[2];
+            } else if (html.indexOf('<iframe ') > -1) { // <iframe width="684" height="315" src="https://www.youtube.com/embed/mvf87FPh55s" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                src = html.match(/src="(.[^"]*)"/);
+                src = src ? src[1] : (html.match(/src='(.[^']*)'/) ? html.match(/src='(.[^']*)'/)[1] : '');
+                src = src ? src : (html.match(/src=(.[^ ]*) /) ? html.match(/src=(.[^ ]*) /)[1] : '');
+            } else if (html.indexOf('http://') > -1 || html.indexOf('https://') > -1) { // https://www.youtube.com/embed/RGuMWr79G00 그냥 진짜 동영상 URL 입력시
+                // src = html;
+            }
+            return src;
+        },
+        //youtube 이미지 가져오기
+        get_youtube_info = function(videourl) {
+            let r = {};
+            // youtube
+            if (videourl.indexOf('youtube') > -1) {
+                // https://www.youtube.com/embed/pYuqTryDdw4
+                let id = get_youtube_id(videourl);
+                r.id = id;
+                r.movie_url = "https://www.youtube.com/embed/" + id;
+                
+                // jQuery.get('https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DW86o7aLA9ZQ', function(r){console.log('r.thumbnail_url:',$('thumbnail_url',r).text());});
+                /*
+                <oembed>
+                    <title>[Ali] 알리 베스트63 연속듣기</title>
+                    <author_name>euna4ever</author_name>
+                    <author_url>https://www.youtube.com/c/euna4ever</author_url>
+                    <type>video</type>
+                    <height>113</height>
+                    <width>200</width>
+                    <version>1.0</version>
+                    <provider_name>YouTube</provider_name>
+                    <provider_url>https://www.youtube.com/</provider_url>
+                    <thumbnail_height>360</thumbnail_height>
+                    <thumbnail_width>480</thumbnail_width>
+                    <thumbnail_url>https://i.ytimg.com/vi/W86o7aLA9ZQ/hqdefault.jpg</thumbnail_url>
+                    <html><iframe width="200" height="113" src="https://www.youtube.com/embed/W86o7aLA9ZQ?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></html>
+                </oembed>
+                */
+                $.get({
+                    'url':'https://www.youtube.com/oembed?format=xml&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D'+id,
+                    'async':false,
+                    'success':function(res){
+                        console.log(res);
+                        $res = $(res);
+                        r.poster_url = $res.find('thumbnail_url').text(); // r.push($('thumbnail_url',r).text()); // 
+                        r.title = $res.find('title').text();
+                        r.author_name = $res.find('author_name').text();
+                        r.author_url = $res.find('author_url').text();
+                        r.type = $res.find('type').text();
+                    }
+                })
+            }
+            return r;
+        },
+
         /**
          * get url parameter value
          * @param String sParam Parameter Name
@@ -364,7 +478,10 @@
                 $('[name=join]').removeClass('d-none');
             break;
             case 'addparser': 
-                if(islogin) {$('[name=addparser]').removeClass('d-none');}
+                if(islogin) {$('[name=addparser]').removeClass('d-none');} else{alert('로그인 해주세요.')}
+            break;
+            case 'addvideo': 
+                if(islogin) {$('[name=addvideo]').removeClass('d-none');} else{alert('로그인 해주세요.');goto('login')}
             break;
             default :
                 emptyMovieList();
@@ -747,6 +864,11 @@
         return false;
     });
 
+    $('[name=form-addvideo]').on('submit', function(){
+        addvideo();
+        return false;
+    });
+
     // 검색, 로그인, 가입, 로그아웃 등 모바일 우측 매뉴영역 클릭시 매뉴 숨김 처리.
     $('[name=btn-login],[name=btn-logout],[name=btn-join]').on('click', function(){
         $('[name=btn-menu-toggler]:visible').click();
@@ -781,5 +903,24 @@
         return false;
     });
 
+
+    // 
+    $('[name=youtube_url]').on('change', function(){
+    // $('[name="btn-import-youtube"]').on('click', function(){
+        const url = $('[name=youtube_url]').val();
+        if(url.indexOf('youtube.com')) {
+            const youtube_info = get_youtube_info(url);
+            console.log(youtube_info);
+            if(youtube_info.id) {
+                $('[name="title"]').val(youtube_info.title)
+                $('[name="categories"]').val(youtube_info.author_name)
+                $('[name="movie_url"]').val(youtube_info.movie_url)
+                $('[name="regdate"]').val(date('Y-m-d H:i:s'))
+                $('[name="poster_url"]').val(youtube_info.poster_url)
+                $('[name="free"]').val('Y');
+            }
+        }
+    })
+    
 
 })(jQuery);

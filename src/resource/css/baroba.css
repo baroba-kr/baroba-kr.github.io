@@ -1,6 +1,6 @@
 /* gray theme 201905 */
 html {font-size:11px}
-body, nav, .bg-dark, input, .btn, .autocomplete {color: #eeeeee !important;background-color: #222222 !important;}
+body, nav, .bg-dark, input, select, option, .btn, .autocomplete {color: #eeeeee !important;background-color: #222222 !important;}
 .input-group-prepend, .input-group{background-color: rgba(0, 0, 0, 0) !important;}
 img, video {z-index: 1}
 [name=poster_box],.input-group-prepend,.input-group,[name=button-search],input,#btn-more,.autocomplete li {border-color: #555555 !important}

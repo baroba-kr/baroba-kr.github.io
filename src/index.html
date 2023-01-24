@@ -86,12 +86,13 @@
                     <a href="#" class="btn btn-gray" name="btn-today">오늘</a>
                     <a href="#" class="btn btn-gray" name="btn-yesterday">어제</a>
                     <a href="#" class="btn btn-gray" name="btn-before-yesterday">그제</a>
-                    <a href="#" class="btn btn-gray" name="btn-before-total">전체</a>
+                    <a href="#" class="btn btn-gray" name="btn-before-total">모두</a>
                 </div>
             </form>
             <div>
                 <a href="#login" class="btn btn-gray" name="btn-login">로그인</a>
                 <a href="#addparser" class="btn btn-gray d-none" name="btn-addparser">채널등록</a>
+                <a href="#addvideo" class="btn btn-gray" name="btn-addvideo">영상등록</a>
                 <a href="#logout" class="btn btn-gray d-none" name="btn-logout">로그아웃</a>
                 <!-- <a href="#join" class="btn btn-gray" name="btn-join">회원가입</a> -->
             </div>
@@ -198,6 +199,35 @@
                 <option value="N" >대기</option>
             </select>   
             <button class="btn btn-lg btn-primary btn-block" type="submit">추가</button>
+        </form>
+    </div>
+    <div name="addvideo" class="board d-none text-center">
+        <form name="form-addvideo" class="form-signin">
+            <img class="mb-4" src="resource/icon/favicon-1024.png" alt="" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal">영상 추가</h1>
+            <label for="youtube_url" class="sr-only">Youtube URL</label>
+            <input name="youtube_url" type="text" id="youtube_url" class="form-control" placeholder="Youtube URL에서 추출" required autofocus>
+            <label for="title" class="sr-only">영상 제목</label>
+            <input name="title" type="text" id="title" class="form-control" placeholder="영상 제목" required>
+            <label for="movie_url" class="sr-only">영상 URL</label>
+            <input name="movie_url" type="text" id="movie_url" class="form-control" placeholder="영상 URL" required autofocus>
+            <label for="categories" class="sr-only">카테고리</label>
+            <input name="categories" type="text" id="categories" class="form-control" placeholder="카테고리" required>
+            <label for="regdate" class="sr-only">등록날짜</label>
+            <input name="regdate" type="text" id="regdate" class="form-control" placeholder="등록날짜" required value="">
+            <label for="poster_url" class="sr-only">포스터 URL</label>
+            <input name="poster_url" type="text" id="poster_url" class="form-control" placeholder="포스터 URL" required value="">
+            <label for="free" class="sr-only">유/무료</label>
+            <select name="free" type="text" id="free" class="form-control" placeholder="무료" required>
+                <option value="Y" selected>무료</option>
+                <option value="N" >유료</option>
+            </select>
+            <label for="adult" class="sr-only">성인</label>
+            <select name="adult" type="text" id="adult" class="form-control" placeholder="성인" required>
+                <option value="Y" >성인</option>
+                <option value="N" selected>비성인</option>
+            </select>   
+            <button class="btn btn-lg btn-primary btn-block" type="submit" name="btn_save_movie">추가</button>
         </form>
     </div>
 
