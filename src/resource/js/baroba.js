@@ -86,7 +86,7 @@
             add_request_item('login', { 'userid': $('[name=userid]').val(), 'userpw': $('[name=userpw]').val()}, function(r){
                 if(r && r.success && r.payload) {
                     $('[name=btn-login],[name=btn-join]').addClass('d-none');
-                    $('[name=btn-logout]').removeClass('d-none');
+                    $('[name=btn-logout],[name=btn-addvideo]').removeClass('d-none');
                     sessionStorage.delete_movie = r.payload.delete_movie;
                     location.href = '#';
                 } else {
@@ -470,7 +470,7 @@
                 add_request_item('logout', {}, function(){
                     sessionStorage.delete_movie = 'N';
                     $('[name=btn-login],[name=btn-join]').removeClass('d-none');
-                    $('[name=btn-logout]').addClass('d-none');
+                    $('[name=btn-logout],[name=btn-addvideo]').addClass('d-none');
                     window.location.href='#';
                 });
             break;
@@ -528,10 +528,10 @@
         if(r && r.success && r.payload) {
             islogin = r.payload;
             $('[name=btn-login],[name=btn-join]').addClass('d-none');
-            $('[name=btn-logout]').removeClass('d-none');
+            $('[name=btn-logout],[name=btn-addvideo]').removeClass('d-none');
         } else {
             $('[name=btn-login],[name=btn-join]').removeClass('d-none');
-            $('[name=btn-logout]').addClass('d-none');
+            $('[name=btn-logout],[name=btn-addvideo]').addClass('d-none');
         }
     });
 
