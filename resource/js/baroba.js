@@ -1,5 +1,5 @@
 (function($) {
-    var items = [], movies = {}, islogin = false,
+    var items = [], movies = {}, islogin = sessionStorage.getItem('islogin')||false,
         runmode = window.location.host ? 'web' : process.versions['electron'] ? 'pc' : 'mobile',
         host = window.location.host ? '//'+window.location.host : '//www.baroba.kr',
         api_url = (host.replace('www.','').replace('//','//api.')),
@@ -7,18 +7,23 @@
         request_api = function() {
             key_request_api = setTimeout(request_api, 300);
             if (items && items.length > 0) {
-                $.post(api_url+'/request/?', { 'item': JSON.stringify(items) }, function(r) {
+                $.post(api_url+'/request/?', { 'item': JSON.stringify(items), 'token':sessionStorage.getItem('token') }, function(r) {
                     for (i in r.payload) {
                         var tr = r.payload[i],
                             callback = 'cb_' + tr.method;
                         if (window[callback]) { window[callback]($.parseJSON(tr.data)); }
                     }
+                    if(r.token) {
+                        sessionStorage.setItem('token', r.token)
+                    }
                 }, 'json'); 
                 items = [];
-                '';;;
+                '';
             }
         },
         add_request_item = function(method_name, params, callback) {
+            params = params ? params : {};
+            params.token = sessionStorage.getItem('token');
             var item = {
                     "method": method_name,
                     "params": params
@@ -40,24 +45,24 @@
         replaceto = function(hash) {
             window.location.replace('#'+hash);
         },
-        // getCookie = function (c_name) {
-        //     var i,x,y,ARRcookies=document.cookie.split(";");
-        //     for (i=0;i<ARRcookies.length;i++)
-        //     {
-        //         x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-        //         y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-        //         x=x.replace(/^\s+|\s+$/g,"");
-        //         if (x === c_name) {
-        //             return unescape(y);
-        //         }
-        //     }
-        // },
-        // setCookie = function (c_name,value,exdays){
-        //     var exdate=new Date();
-        //     exdate.setDate(exdate.getDate() + exdays);
-        //     var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
-        //     document.cookie=c_name + "=" + c_value;
-        // },
+        getCookie = function (c_name) {
+            var i,x,y,ARRcookies=document.cookie.split(";");
+            for (i=0;i<ARRcookies.length;i++)
+            {
+                x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
+                y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
+                x=x.replace(/^\s+|\s+$/g,"");
+                if (x === c_name) {
+                    return unescape(y);
+                }
+            }
+        },
+        setCookie = function (c_name,value,exdays){
+            var exdate=new Date();
+            exdate.setDate(exdate.getDate() + exdays);
+            var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+            document.cookie=c_name + "=" + c_value;
+        },
         extractHostname = function(url) {
             var hostname;
             if (url.indexOf("//") > -1) {
@@ -84,7 +89,10 @@
         },
         login = function(){
             add_request_item('login', { 'userid': $('[name=userid]').val(), 'userpw': $('[name=userpw]').val()}, function(r){
+                console.log('login r:', r);
                 if(r && r.success && r.payload) {
+                    // islogin = r.payload;
+                    sessionStorage.setItem('islogin', $('[name=userid]').val());
                     $('[name=btn-login],[name=btn-join]').addClass('d-none');
                     $('[name=btn-logout],[name=btn-addvideo]').removeClass('d-none');
                     sessionStorage.delete_movie = r.payload.delete_movie;
@@ -416,7 +424,7 @@
             }
 
 			// 태그별 첫번째 목록 데이터 로딩시 이전데이터도 함깨 로딩하는데 그럴경우 최상단으로 이동하지 않도록 포지션을 유지시킴.
-			if($first_movie) {
+			if($first_movie && $first_movie.length>0) {
 				$(window).scrollTop($first_movie.offset().top-70);
 				$first_movie = null;
 			}
@@ -475,12 +483,15 @@
                 });
             break;
             case 'join': 
+                $('[name="btn-menu-toggler"]').click();
                 $('[name=join]').removeClass('d-none');
             break;
             case 'addparser': 
-                if(islogin) {$('[name=addparser]').removeClass('d-none');} else{alert('로그인 해주세요.')}
+                $('[name="btn-menu-toggler"]').click();
+                if(islogin) {$('[name=addparser]').removeClass('d-none');} else{alert('로그인 해주세요.');goto('login')}
             break;
             case 'addvideo': 
+                $('[name="btn-menu-toggler"]').click();
                 if(islogin) {$('[name=addvideo]').removeClass('d-none');} else{alert('로그인 해주세요.');goto('login')}
             break;
             default :
@@ -494,7 +505,8 @@
                 $('#searching').removeClass('d-none'); // 검색중입니다. 종료./
                 $('[name=main]').removeClass('d-none');
                 $('#btn-more').addClass('d-none');
-                lastMovieTime = localStorage[hash];
+                // lastMovieTime = localStorage[hash];
+                lastMovieTime = localStorage.getItem(hash);
                 // lastMovieTime = localStorage.getItem('lastMovieTime');
                 // lastMovieTime = lastMovieTime ? JSON.parse(lastMovieTime) : {};
                 // -- 날짜 이동기능 넣어서 제거함
@@ -524,14 +536,18 @@
         }
     }
     // check login
-    add_request_item('isLogin', {}, function(r){
+    add_request_item('isLogin', {'token':getCookie('token')}, function(r){
+        console.log('isLogin r:',r);
         if(r && r.success && r.payload) {
             islogin = r.payload;
+            sessionStorage.setItem('islogin', islogin);
             $('[name=btn-login],[name=btn-join]').addClass('d-none');
             $('[name=btn-logout],[name=btn-addvideo]').removeClass('d-none');
+            $('[name=btn-logout],[name=btn-addparser]').removeClass('d-none');
         } else {
             $('[name=btn-login],[name=btn-join]').removeClass('d-none');
             $('[name=btn-logout],[name=btn-addvideo]').addClass('d-none');
+            $('[name=btn-logout],[name=btn-addparser]').addClass('d-none');
         }
     });
 
