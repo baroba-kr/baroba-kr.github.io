@@ -416,7 +416,7 @@
             }
 
 			// 태그별 첫번째 목록 데이터 로딩시 이전데이터도 함깨 로딩하는데 그럴경우 최상단으로 이동하지 않도록 포지션을 유지시킴.
-			if($first_movie) {
+			if($first_movie && $first_movie.length>0) {
 				$(window).scrollTop($first_movie.offset().top-70);
 				$first_movie = null;
 			}
@@ -494,7 +494,8 @@
                 $('#searching').removeClass('d-none'); // 검색중입니다. 종료./
                 $('[name=main]').removeClass('d-none');
                 $('#btn-more').addClass('d-none');
-                lastMovieTime = localStorage[hash];
+                // lastMovieTime = localStorage[hash];
+                lastMovieTime = localStorage.getItem(hash);
                 // lastMovieTime = localStorage.getItem('lastMovieTime');
                 // lastMovieTime = lastMovieTime ? JSON.parse(lastMovieTime) : {};
                 // -- 날짜 이동기능 넣어서 제거함
