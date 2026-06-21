@@ -5,6 +5,7 @@
 	<meta name="viewport"
 		content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="Permissions-Policy" content="autoplay=*, encrypted-media=*, fullscreen=*">
 	<title>BAROBA Player</title>
 	<style>
 		body {
@@ -185,12 +186,47 @@
 			$('#btn_play').prop('disabled', true).css('opacity', 0.5);
 		}
 
-		function applyWebViewPlayButtonVisibility() {
-			if (!isWebView()) return;
+		function applyAutostartPlayButtonVisibility() {
+			if (!shouldAutostart()) return;
 			var el = document.getElementById('btn_play');
 			if (!el) return;
 			el.style.visibility = playing ? 'hidden' : 'visible';
 		}
+
+		function isTruthyParam(value) {
+			if (!value) return false;
+			value = decodeURIComponent(value).trim().toLowerCase();
+			return value === '1' || value === 'true' || value === 'yes';
+		}
+
+		function isWebView() {
+			var ua = navigator.userAgent || navigator.vendor || window.opera;
+			return (
+				/; wv\)/i.test(ua)
+				|| /; wv/i.test(ua)
+				|| /iPhone|iPod|iPad/i.test(ua) && !/Safari/i.test(ua)
+				|| /\bWebView\b/i.test(ua)
+				|| /\bNAVER\b|\bDaum\b|\bKAKAOTALK\b/i.test(ua)
+			);
+		}
+
+		function shouldAutostart() {
+			return isTruthyParam(getURLParameter('embed'))
+				|| isTruthyParam(getURLParameter('autoplay'))
+				|| isWebView();
+		}
+
+		function startPlayback() {
+			if (!videoUrls.length) return;
+			if (window.youtube_player) {
+				YT_play();
+				return;
+			}
+			youtube_play(videoUrls);
+			$('#video-player-box').removeClass('hidden').show();
+			$('.box_play').hide();
+		}
+		window.barobaStartPlayback = startPlayback;
 
 		function YT_play(mode) {
 			if (!window.youtube_player) return;
@@ -218,7 +254,7 @@
 					break;
 			}
 			window.youtube_player.setPlaybackQuality('auto');
-			applyWebViewPlayButtonVisibility();
+			applyAutostartPlayButtonVisibility();
 		}
 		window.YT_play = YT_play;
 
@@ -244,7 +280,7 @@
 				var st = event.data;
 				if (st === 1 || st === 3) playing = true;
 				else if (st === 2 || st === 0) playing = false;
-				applyWebViewPlayButtonVisibility();
+				applyAutostartPlayButtonVisibility();
 			}
 
 			function onPlayerReady() {
@@ -337,32 +373,18 @@
 		}
 
 		$('#btn_play').on('click', function () {
-			if (!videoUrls.length) return;
-			if (window.youtube_player) {
-				YT_play();
-				return;
-			}
-			youtube_play(videoUrls);
-			$('#video-player-box').removeClass('hidden').show();
-			$('.box_play').hide();
+			startPlayback();
 		});
 
-		function isWebView() {
-			var ua = navigator.userAgent || navigator.vendor || window.opera;
-			return (
-				/; wv\)/i.test(ua)
-				|| /; wv/i.test(ua)
-				|| /iPhone|iPod|iPad/i.test(ua) && !/Safari/i.test(ua)
-				|| /\bWebView\b/i.test(ua)
-				|| /\bNAVER\b|\bDaum\b|\bKAKAOTALK\b/i.test(ua)
-			);
-		}
+		window.addEventListener('message', function (event) {
+			if (!event.origin.startsWith('chrome-extension://')) return;
+			if (!event.data || event.data.action !== 'baroba-play') return;
+			startPlayback();
+		});
 
-		if (isWebView() && videoUrls.length) {
+		if (shouldAutostart() && videoUrls.length) {
 			$('#btn_play').css('visibility', 'hidden');
-			youtube_play(videoUrls);
-			$('#video-player-box').removeClass('hidden').show();
-			$('.box_play').hide();
+			startPlayback();
 		}
 	});
 </script>
