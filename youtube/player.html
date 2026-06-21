@@ -106,6 +106,14 @@
 		.hidden {
 			display: none;
 		}
+
+		.no-cover .cover {
+			display: none;
+		}
+
+		.no-cover .player {
+			pointer-events: auto;
+		}
 	</style>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://www.youtube.com/iframe_api" tabindex="-1"></script>
@@ -197,6 +205,13 @@
 			if (!value) return false;
 			value = decodeURIComponent(value).trim().toLowerCase();
 			return value === '1' || value === 'true' || value === 'yes';
+		}
+
+		function shouldUseCover() {
+			var cover = getURLParameter('cover');
+			if (!cover) return true;
+			cover = decodeURIComponent(cover).trim().toLowerCase();
+			return !(cover === '0' || cover === 'false' || cover === 'no');
 		}
 
 		function isWebView() {
@@ -365,8 +380,14 @@
 			if (!window.youtube_player) return;
 			playing ? YT_play('pause') : YT_play();
 		}
-		$('.cover').on('click', onCoverOrShellTap);
 		window.barobaYouTubeShellTap = onCoverOrShellTap;
+
+		var useCover = shouldUseCover();
+		if (useCover) {
+			$('.cover').on('click', onCoverOrShellTap);
+		} else {
+			$('#video-player-box').addClass('no-cover');
+		}
 
 		if (!videoUrls.length) {
 			showError('URL 파라미터가 없습니다. 예: ?url=https://www.youtube.com/watch?v=VIDEO_ID');
