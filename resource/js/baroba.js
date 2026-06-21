@@ -1,8 +1,16 @@
 (function($) {
     var items = [], movies = {}, islogin = sessionStorage.getItem('islogin')||false,
         runmode = window.location.host ? 'web' : process.versions['electron'] ? 'pc' : 'mobile',
-        host = window.location.host ? '//'+window.location.host : '//www.baroba.kr',
-        api_url = (host.replace('www.','').replace('//','//api.')),
+        api_url = '//api-baroba.benant.net',
+        tools_url = '//tools-baroba.benant.net',
+        site_url = '//baroba.benant.net',
+        migrate_domain = function(url) {
+            if (!url) return url;
+            return url.replace(/\/\/tools\.baroba\.kr/g, tools_url)
+                      .replace(/\/\/api\.baroba\.kr/g, api_url)
+                      .replace(/\/\/www\.baroba\.kr/g, site_url)
+                      .replace(/\/\/baroba\.kr/g, site_url);
+        },
         key_request_api = '',
         request_api = function() {
             key_request_api = setTimeout(request_api, 300);
@@ -342,7 +350,7 @@
                     like_class = liked < 0 ? 'far' : 'fas';
                 if(typeof movies[movie.movie_no] != typeof undefined) { continue; }
                 html.push(
-                    tpl.replace(/{posterurl}/g, poster).replace(/{movieurl}/g, movie.url).replace(/{time}/g, movie.time).replace(/{movieno}/g, movie.movie_no).replace(/{title}/g, movie.title).replace(/{date}/g, date).replace(/{root_domain}/g, extractRootDomain(movie.url).toUpperCase()).replace(/{like_name}/g, like_name).replace(/{like_class}/g, like_class).replace('{hide_delete_btn}', sessionStorage.delete_movie=='Y' ? '' : 'd-none') //.replace(/{height}/g,height)
+                    tpl.replace(/{posterurl}/g, poster).replace(/{movieurl}/g, migrate_domain(movie.url)).replace(/{time}/g, movie.time).replace(/{movieno}/g, movie.movie_no).replace(/{title}/g, movie.title).replace(/{date}/g, date).replace(/{root_domain}/g, extractRootDomain(migrate_domain(movie.url)).toUpperCase()).replace(/{like_name}/g, like_name).replace(/{like_class}/g, like_class).replace('{hide_delete_btn}', sessionStorage.delete_movie=='Y' ? '' : 'd-none') //.replace(/{height}/g,height)
                 );
                 movies[movie.movie_no] = true;
                 setTimeout(function(){check_last_movie();}, 1000);
@@ -605,7 +613,7 @@
         getBackMore = false;getMore = false;
         var window_width = $(window).outerWidth(),
             $item = $(obj).parents('[name=item]'),
-            movie_url = $item.attr('data-movie'),
+            movie_url = migrate_domain($item.attr('data-movie')),
             movie_url = window.location.href.indexOf('https://')>-1 && movie_url.indexOf('mgoon.com')>-1 ? movie_url.replace('http://', 'https://') : movie_url,
             movie_no = $item.attr('data-movieno'),
             type = movie_url.match(/\.gif/i) ? 'image' : 'video',
