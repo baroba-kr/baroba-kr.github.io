@@ -327,6 +327,7 @@
 			}
 
 			function onYouTubeIframeAPIReady() {
+				var showControls = !shouldUseCover();
 				youtube_player = new YT.Player(target_selector, {
 					height: '551',
 					width: '980',
@@ -335,11 +336,12 @@
 						playlist: videoIds,
 						autoplay: '1',
 						playsinline: '1',
-						controls: '0',
+						controls: showControls ? '1' : '0',
+						fs: showControls ? '1' : '0',
 						modestbranding: '1',
 						enablejsapi: '1',
 						loop: '1',
-						disablekb: '1'
+						disablekb: showControls ? '0' : '1'
 					},
 					events: {
 						onReady: onPlayerReady,
