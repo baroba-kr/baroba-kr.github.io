@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>BAROBA Player</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background: #000;
+		}
+
+		.video-player {
+			width: 100%;
+			height: 100%;
+		}
+
+		.cover {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0;
+			z-index: 15;
+		}
+
+		.player {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			z-index: 10;
+			top: 0;
+			pointer-events: none;
+		}
+
+		.title {
+			color: #fff;
+			position: absolute;
+			z-index: 20;
+			display: none !important;
+		}
+
+		.btn {
+			cursor: pointer;
+		}
+
+		.btn.prev {
+			display: block;
+			left: 0;
+			position: absolute;
+			height: 100vh;
+			line-height: 100vh;
+			z-index: 20;
+			font-size: 5rem;
+			color: #666;
+		}
+
+		.btn.next {
+			display: block;
+			right: 0;
+			position: absolute;
+			height: 100vh;
+			line-height: 100vh;
+			z-index: 20;
+			font-size: 5rem;
+			color: #666;
+		}
+
+		.box_play {
+			position: fixed;
+			inset: 0;
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+			gap: 1rem;
+		}
+
+		#btn_play {
+			background: linear-gradient(90deg, #ff512f 0%, #dd2476 100%);
+			border: none;
+			border-radius: 50px;
+			color: white;
+			font-size: 1.7rem;
+			padding: 15px 40px;
+			font-weight: bold;
+			cursor: pointer;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+			transition: background 0.3s, box-shadow 0.3s;
+		}
+
+		#msg_error {
+			color: #aaa;
+			font-size: 1rem;
+			text-align: center;
+			padding: 0 1.5rem;
+			max-width: 90vw;
+		}
+
+		.hidden {
+			display: none;
+		}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://www.youtube.com/iframe_api" tabindex="-1"></script>
+</head>
+
+<body>
+	<div class="box_play">
+		<button id="btn_play">▶ 재생</button>
+		<p id="msg_error" class="hidden"></p>
+	</div>
+	<div id="video-player-box" class="video-player hidden">
+		<div class="cover"></div>
+		<div id="player" class="player hide" frameborder="0" tabindex="-1" allowfullscreen></div>
+		<div id="video_title" class="title"></div>
+		<div id="video_next" class="btn next">
+			<img src="data:image/svg+xml;utf8,<svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><polygon points='12,8 24,16 12,24' fill='%23666'/></svg>" alt="Next" style="width:80px; height:80px; vertical-align:middle;" />
+		</div>
+		<div id="video_prev" class="btn prev">
+			<img src="data:image/svg+xml;utf8,<svg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'><polygon points='20,8 8,16 20,24' fill='%23666'/></svg>" alt="Prev" style="width:80px; height:80px; vertical-align:middle;" />
+		</div>
+	</div>
+</body>
+<script>
+	function getURLParameter(sParam) {
+		var sPageURL = window.location.search.substring(1);
+		var sURLVariables = sPageURL.split('&');
+		var v = '';
+		sParam = (sParam + '').trim();
+		if (!sParam) return v;
+		sParam += '=';
+		for (var i = 0; i < sURLVariables.length; i++) {
+			var param = sURLVariables[i];
+			var p = param.indexOf(sParam);
+			if (p > -1) {
+				v = param.substr(p + sParam.length);
+				break;
+			}
+		}
+		return v;
+	}
+
+	function getYouTubeVideoId(url) {
+		if (!url) return null;
+		url = decodeURIComponent(url.trim());
+		var regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
+		var match = url.match(regex);
+		if (match) return match[1];
+		if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+		return null;
+	}
+
+	function collectVideoUrls() {
+		var url = getURLParameter('url');
+		var urls = getURLParameter('urls');
+		var v = getURLParameter('v');
+		var list = [];
+
+		if (url) list.push(decodeURIComponent(url));
+		if (urls) {
+			decodeURIComponent(urls).split(',').forEach(function (item) {
+				if (item.trim()) list.push(item.trim());
+			});
+		}
+		if (v) list.push(decodeURIComponent(v));
+
+		return list;
+	}
+
+	jQuery(function () {
+		window.video_move_direction = '';
+
+		var youtube_player = null;
+		var playing = false;
+		var videoUrls = collectVideoUrls();
+
+		function showError(message) {
+			$('#msg_error').text(message).removeClass('hidden');
+			$('#btn_play').prop('disabled', true).css('opacity', 0.5);
+		}
+
+		function applyWebViewPlayButtonVisibility() {
+			if (!isWebView()) return;
+			var el = document.getElementById('btn_play');
+			if (!el) return;
+			el.style.visibility = playing ? 'hidden' : 'visible';
+		}
+
+		function YT_play(mode) {
+			if (!window.youtube_player) return;
+			switch (mode) {
+				case 'prev':
+				case 'previous':
+					window.youtube_player.previousVideo();
+					break;
+				case 'next':
+					window.youtube_player.nextVideo();
+					break;
+				case 'pause':
+					window.youtube_player.pauseVideo();
+					playing = false;
+					$('#video_title, #video_next, #video_prev').stop(true, true).fadeTo(1000, 1);
+					break;
+				case 'stop':
+					window.youtube_player.stopVideo();
+					playing = false;
+					break;
+				default:
+					window.youtube_player.playVideo();
+					playing = true;
+					$('#video_title, #video_next, #video_prev').stop(true, true).fadeTo(1000, 0.1);
+					break;
+			}
+			window.youtube_player.setPlaybackQuality('auto');
+			applyWebViewPlayButtonVisibility();
+		}
+		window.YT_play = YT_play;
+
+		function youtube_play(url, target_selector) {
+			url = url && url.length && typeof url === typeof new Array() ? url : url.split(',');
+			var videoIds = '';
+			for (var i in url) {
+				var _id = getYouTubeVideoId(url[i]);
+				if (_id) videoIds += ',' + _id;
+			}
+			videoIds = videoIds.substring(1);
+
+			if (!videoIds) {
+				showError('유효한 YouTube URL 또는 영상 ID가 필요합니다.');
+				return;
+			}
+
+			target_selector = target_selector ? target_selector : 'player';
+
+			function onPlayerStateChange(event) {
+				$('#' + target_selector).parent().find('#video_title').text(window.youtube_player.videoTitle);
+				if (!window.youtube_player) return;
+				var st = event.data;
+				if (st === 1 || st === 3) playing = true;
+				else if (st === 2 || st === 0) playing = false;
+				applyWebViewPlayButtonVisibility();
+			}
+
+			function onPlayerReady() {
+				$('#' + target_selector).show();
+				$('#' + target_selector).parent().find('#video_title').text(window.youtube_player.videoTitle);
+				YT_play();
+			}
+
+			function onPlayerError(event) {
+				switch (event.data) {
+					case 2:
+						console.error('Invalid parameter.');
+						break;
+					case 5:
+						console.error('HTML5 player error.');
+						break;
+					case 100:
+						console.error('Video not found.');
+						YT_play(window.video_move_direction === 'prev' ? 'prev' : 'next');
+						break;
+					case 101:
+					case 150:
+						console.error('The owner has restricted playback on other websites.');
+						YT_play(window.video_move_direction === 'prev' ? 'prev' : 'next');
+						break;
+					default:
+						console.error('An unknown error occurred.');
+				}
+			}
+
+			function onYouTubeIframeAPIReady() {
+				youtube_player = new YT.Player(target_selector, {
+					height: '551',
+					width: '980',
+					videoId: videoIds.split(',')[0],
+					playerVars: {
+						playlist: videoIds,
+						autoplay: '1',
+						playsinline: '1',
+						controls: '0',
+						modestbranding: '1',
+						enablejsapi: '1',
+						loop: '1',
+						disablekb: '1'
+					},
+					events: {
+						onReady: onPlayerReady,
+						onStateChange: onPlayerStateChange,
+						onError: onPlayerError
+					}
+				});
+				window.youtube_player = youtube_player;
+			}
+
+			if (typeof YT !== 'undefined' && YT.Player) {
+				onYouTubeIframeAPIReady();
+			} else {
+				window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+			}
+
+			if (url.length < 2) {
+				$('#video_prev, #video_next').hide();
+			}
+		}
+		window.youtube_play = youtube_play;
+
+		function youtube_stop() {
+			window.youtube_player = null;
+			YT_play('stop');
+		}
+		window.youtube_stop = youtube_stop;
+
+		$('#video_next').on('click', function () {
+			YT_play('next');
+		});
+
+		$('#video_prev').on('click', function () {
+			YT_play('prev');
+		});
+
+		function onCoverOrShellTap() {
+			if (!window.youtube_player) return;
+			playing ? YT_play('pause') : YT_play();
+		}
+		$('.cover').on('click', onCoverOrShellTap);
+		window.barobaYouTubeShellTap = onCoverOrShellTap;
+
+		if (!videoUrls.length) {
+			showError('URL 파라미터가 없습니다. 예: ?url=https://www.youtube.com/watch?v=VIDEO_ID');
+		}
+
+		$('#btn_play').on('click', function () {
+			if (!videoUrls.length) return;
+			if (window.youtube_player) {
+				YT_play();
+				return;
+			}
+			youtube_play(videoUrls);
+			$('#video-player-box').removeClass('hidden').show();
+			$('.box_play').hide();
+		});
+
+		function isWebView() {
+			var ua = navigator.userAgent || navigator.vendor || window.opera;
+			return (
+				/; wv\)/i.test(ua)
+				|| /; wv/i.test(ua)
+				|| /iPhone|iPod|iPad/i.test(ua) && !/Safari/i.test(ua)
+				|| /\bWebView\b/i.test(ua)
+				|| /\bNAVER\b|\bDaum\b|\bKAKAOTALK\b/i.test(ua)
+			);
+		}
+
+		if (isWebView() && videoUrls.length) {
+			$('#btn_play').css('visibility', 'hidden');
+			youtube_play(videoUrls);
+			$('#video-player-box').removeClass('hidden').show();
+			$('.box_play').hide();
+		}
+	});
+</script>
+
+</html>
