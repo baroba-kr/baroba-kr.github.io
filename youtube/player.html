@@ -114,6 +114,11 @@
 		.no-cover .player {
 			pointer-events: auto;
 		}
+
+		.no-cover .btn.prev,
+		.no-cover .btn.next {
+			display: none !important;
+		}
 	</style>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://www.youtube.com/iframe_api" tabindex="-1"></script>
@@ -214,6 +219,16 @@
 			return !(cover === '0' || cover === 'false' || cover === 'no');
 		}
 
+		var useCover = shouldUseCover();
+
+		function getNavSelector() {
+			return useCover ? '#video_title, #video_next, #video_prev' : '';
+		}
+
+		function hideNavButtons() {
+			$('#video_prev, #video_next').hide();
+		}
+
 		function isWebView() {
 			var ua = navigator.userAgent || navigator.vendor || window.opera;
 			return (
@@ -256,7 +271,9 @@
 				case 'pause':
 					window.youtube_player.pauseVideo();
 					playing = false;
-					$('#video_title, #video_next, #video_prev').stop(true, true).fadeTo(1000, 1);
+					if (getNavSelector()) {
+						$(getNavSelector()).stop(true, true).fadeTo(1000, 1);
+					}
 					break;
 				case 'stop':
 					window.youtube_player.stopVideo();
@@ -265,7 +282,9 @@
 				default:
 					window.youtube_player.playVideo();
 					playing = true;
-					$('#video_title, #video_next, #video_prev').stop(true, true).fadeTo(1000, 0.1);
+					if (getNavSelector()) {
+						$(getNavSelector()).stop(true, true).fadeTo(1000, 0.1);
+					}
 					break;
 			}
 			window.youtube_player.setPlaybackQuality('auto');
@@ -358,8 +377,8 @@
 				window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 			}
 
-			if (url.length < 2) {
-				$('#video_prev, #video_next').hide();
+			if (url.length < 2 || !useCover) {
+				hideNavButtons();
 			}
 		}
 		window.youtube_play = youtube_play;
@@ -384,11 +403,11 @@
 		}
 		window.barobaYouTubeShellTap = onCoverOrShellTap;
 
-		var useCover = shouldUseCover();
 		if (useCover) {
 			$('.cover').on('click', onCoverOrShellTap);
 		} else {
 			$('#video-player-box').addClass('no-cover');
+			hideNavButtons();
 		}
 
 		if (!videoUrls.length) {
